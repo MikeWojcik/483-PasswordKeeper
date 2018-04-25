@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1015815300481",
+    "firebase_url": "https://wojcik-password-keeper.firebaseio.com",
+    "project_id": "wojcik-password-keeper",
+    "storage_bucket": "wojcik-password-keeper.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015815300481:android:e990c52a0f880fe5",
+        "android_client_info": {
+          "package_name": "edu.rosehulman.passwordkeeper"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015815300481-fo9dkpjqgdfbpmo1icvjui8uih3vt2lf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "edu.rosehulman.passwordkeeper",
+            "certificate_hash": "44fb5d216cfffc2e2ce9410a87fbfaf2eecc8341"
+          }
+        },
+        {
+          "client_id": "1015815300481-71chmh5gtv7isblfdskaklqf26h4glla.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC0AyVqoW80TxJKn6v-Qphi-kx4T_nEDhE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015815300481-71chmh5gtv7isblfdskaklqf26h4glla.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
