@@ -1,27 +1,94 @@
 package edu.rosehulman.passwordkeeper;
 
+
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
-public class MainActivity extends AppCompatActivity implements LoginFragment.OnLoginListener, PasswordFragment.OnLogoutListener {
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+public class MainActivity extends AppCompatActivity implements LoginFragment.OnLoginListener, PasswordFragment.OnLogoutListener, GoogleApiClient.OnConnectionFailedListener {
+
+    private static final int RC_SIGN_IN = 69;
+    FirebaseAuth mAuth;
+    FirebaseAuth.AuthStateListener mAuthStateListener;
+    OnCompleteListener mOnCompleteListener;
+    GoogleApiClient mGoogleApiClient;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        switchToPasswordFragment("");
+        mAuth = FirebaseAuth.getInstance();
+
+
+        initializeListeners();
+    }
+
+    private void initializeListeners() {
+        mAuthStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+              //  Log.d(Constants.TAG, "USER: " + user.toString());
+
+                if (user != null) {
+                    switchToPasswordFragment("users/" + user.getUid());
+                }
+                else{
+                    switchToLoginFragment();
+                }
+
+            }
+        };
+        mOnCompleteListener = new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+            if(!task.isSuccessful()){
+                showLoginError("Incorrect Authentication");
+            }
+            }
+        };
+    }
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mAuth.addAuthStateListener(mAuthStateListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if(mAuthStateListener != null){
+            mAuth.removeAuthStateListener(mAuthStateListener);
+        }
     }
 
     @Override
     public void onLogin(String email, String password) {
-        //TODO: Log user in with username & password
+        //DONE: Log user in with username & password
+        mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(mOnCompleteListener);
     }
 
     @Override
     public void onGoogleLogin() {
         //TODO: Log user in with Google account
+        Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
+        startActivityForResult(signInIntent, RC_SIGN_IN);
     }
 
     @Override
@@ -31,8 +98,19 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public void onLogout() {
-        //TODO: Log the user out.
+        mAuth.signOut();
+        //Done: Log the user out.
     }
+
+    private void initilizeGoogleAuth(){
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this).enableAutoManage(this,this).addApi(Auth.GOOGLE_SIGN_IN_API, gso).build();
+    }
+
 
     // MARK: Provided Helper Methods
     private void switchToLoginFragment() {
@@ -56,4 +134,8 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
         loginFragment.onLoginError(message);
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        showLoginError("Google Auth Failure");
+    }
 }
